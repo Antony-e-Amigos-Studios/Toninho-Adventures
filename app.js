@@ -45,6 +45,7 @@ io.on('connection', socket => {
 
     socket.on('UpdatePlayer', (id, data) => {
         players[id] = data
+        players["online"] = Object.keys(players).length-1;
         io.emit('UpdatePlayers', players)
     })
 

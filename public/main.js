@@ -9,7 +9,7 @@ import { Audio, AudioPlayer } from './Engine/Audio.js'
 import Server from './Engine/Server.js'
 import { Interface, Panel } from './Engine/Interface.js'
 import Chat from './Scripts/Chat.js'
-import { Command, tpCheat, speedCheat } from './Scripts/Cmd.js'
+import { Command, tpCheat, speedCheat, send } from './Scripts/Cmd.js';
 
 /**
     Essa e o script mãe, sem ele nada e executado
@@ -28,25 +28,25 @@ const game = new Game();
 var center = game.center({ x: 0, y: 0, w: 100, h: 100 });
 var player = new Player(center.x, center.y, 100, 100);
 
-let players = {} 
+let players = {}
 
  // senpai delicioso
 
-function promptName() {
+function promptName(p="", a="") {
   let name, guestname;
   guestname = "guest" + Math.floor(Math.random()*100);
   do {
-    name = window.prompt("type your name");
-  } while (name.length > 10);
+    name = window.prompt(p + "type a name" + a);
+  } while (name && name.length > 10);
   return !name ? guestname : name;
 }
 
-player.name = promptName();
+player.name = promptName("hi, please ");
 Server.emit("ValidateName", player.name);
 
 Server.on('Name', valid => {
   if (!valid) {
-    player.name = promptName();
+    player.name = promptName("this name is too big or is already in use, ", " again");
     Server.emit("ValidateName", player.name)
   } else {
     Server.emit('NewPlayer', { x: player.x, y: player.y, name: player.name, current: player.get("spriteanimator").current, frame: player.get("spriteanimator").frame})
@@ -67,7 +67,7 @@ player.get("spriteanimator").set_current_animation("idle");
  */
 
 /// n mexe
-
+let online = 1;
 let chatc = new Chat();
 
 document.addEventListener("keydown", (e) => {
@@ -75,23 +75,29 @@ document.addEventListener("keydown", (e) => {
     let color
     let msg = chatc.input.value;
 
+    if (msg.length > 100) {
+      chatc.add_message({sender: "dev", msg: "vai toma no seu cu travazapper"});
+      chatc.input.value = "";
+      return;
+    }
+
     if (!msg) {
       return;
     }
-    // /\\setspd\{(\d+)\}/, /\\tp\{([A-Za-z]+)\}/
-       // \setspd{num}       \tp{nome}
-    let cmds = [new Command(/\\setspd\{(\d+)\}/,speedCheat.run),
-                new Command(/\\tp\{([A-Za-z]+)\}/,tpCheat.run)];
+
+    let cmds = [new Command(/^(?:\/|\\)setspd\{(\d+)\}$/,speedCheat.run),
+                new Command(/^(?:\/|\\)tp\{(.+)\}$/,tpCheat.run),new Command(/^(?:\/|\\)send\{([A-Za-z]+>(\d+))\}$/,send.run)];
     for (let cmd of cmds) {
       if (cmd.run(msg, player, players)) {
         chatc.add_message({sender: "dev", msg: "cheat_ativado KKKKK"});
-        chatc.input.value = ""
+        chatc.input.value = "";
+        Server.emit('UpdatePlayer', Server.getId(),{x:player.x, y:player.y, name:player.name, frame:player.get("spriteanimator").frame, current:player.get("spriteanimator").current})
         return;
       }
     }
 
     Server.emit('chat', {sender: player.name,   msg: msg, c:color});
-    chatc.input.value = ""
+    chatc.input.value = "";
   }
 });
 
@@ -105,6 +111,14 @@ Server.on('chatmsg', data => {
 })
 
 Server.on('UpdatePlayers', data => {
+    if (data["online"] > online) {
+        let k = Object.keys(data);
+        let p = data[k[k.length-1]];
+        chatc.add_message({sender: "Server", msg: `${p.name} entrou no jogo`, color:"#f8ef1f"});
+    }
+    online = data["online"];
+    game.drawtext(`players online: ${online}`);
+    delete data["online"];
     players = data
     var entity_list = [];
     for (let i in players){ // pqp ta 3 fps no meu KKKK
@@ -172,6 +186,7 @@ player.get("audioplayer").on_stop_callback(() => {
 import mapMatrix from './Matrixs/mapMatrix.js'
 import treeMatrix from './Matrixs/treeMatrix.js'
 
+
 /**
  * Isso é só eu brincando, depois eu tiro essas coisas ai
  * se voces quiserem claro
@@ -217,8 +232,8 @@ const camera = new Camera(300, 300, player);
 mapa.enable_camera();
 tree.enable_camera();
 game.add_component("camera", camera);
-game.add_component("menu", new Interface(game));
-game.get("menu").add_element("Painel", new Panel(0, 0, game.width, game.height, { color: "rgba(25, 25, 25, 0.5)" }))
+game.add_component("menu", new Interface(0, 0, game.height, game.width))
+game.get('menu').add_element('painel1', new Panel(0, 0, game.width, game.height, {color:"rgba(25, 25, 25, 0.1)"}))
 
 game.add_entity(player);
 
@@ -228,4 +243,4 @@ game.create_scene("scene1", new Scene(
 ));
 
 game.set_current_scene("scene1");
-game.main()
+game.main();

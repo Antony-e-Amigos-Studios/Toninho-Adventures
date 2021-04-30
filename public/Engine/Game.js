@@ -10,7 +10,7 @@ export default class Game extends NonEntityGameObject {
         super();
         this.xspd = 0;
         this.yspd = 0;
-        this.texts = {};
+        this.text = "";
         this.entities = [];
         this.background = undefined;
         this.scenes = {};
@@ -44,6 +44,10 @@ export default class Game extends NonEntityGameObject {
         }
     }
 
+    drawtext(txt) {
+      this.text = txt;
+    }
+
     gameLoop() {
         if (this === undefined) {
             return undefined;
@@ -58,6 +62,10 @@ export default class Game extends NonEntityGameObject {
             ent.position_update();
             ent.update_components(this.ctx);
         }
+
+        this.ctx.font = "15px monospace";
+        this.ctx.fillStyle = "rgb(255,255,255)";
+        this.ctx.fillText(this.text,10,100);
         
         window.requestAnimationFrame(this.gameLoop);
     }

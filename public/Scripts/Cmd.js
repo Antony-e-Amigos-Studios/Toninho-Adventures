@@ -1,3 +1,5 @@
+import Server from '../Engine/Server.js';
+
 class Command {
   constructor(re, fn) {
     this.re = re;
@@ -14,6 +16,14 @@ class Command {
   }
 }
 
+class send {
+  static run(argv, player, players) {
+    for (let i = 0; i < parseInt(argv[2]); i++) {
+      Server.emit('chat', {sender: player.name,     msg: argv[1], c:"rgb(200,200,200)"});
+    }
+  }
+}
+
 class speedCheat {
   static run(argv, player, players) {
     player.get("movement").speed = parseInt(argv[1]);
@@ -21,7 +31,7 @@ class speedCheat {
 }
 
 class tpCheat {
-  static run(argv, player, players) {
+  static run(argv, player, players, chatc) {
     let name = argv[1];
     for (let key in players) {
       let p = players[key];
@@ -34,4 +44,4 @@ class tpCheat {
   }
 }
 
-export { Command,  speedCheat, tpCheat };
+export { Command,  speedCheat, tpCheat, send };

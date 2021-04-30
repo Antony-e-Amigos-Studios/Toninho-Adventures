@@ -6,7 +6,7 @@ import Component from './Component.js'
     Toda ideia e bem vinda :)
 */
 class Interface extends Component{
-    constructor(x, y, w, h, options=null){
+    constructor(x, y, h, w, options={}){
         super()
         this.elements = {}
         this.options = options
@@ -19,7 +19,8 @@ class Interface extends Component{
         canvasNew.height = h
         canvasNew.style.marginLeft = x
         canvasNew.style.marginTop = y
-        canvasNew.id = "element"
+        canvasNew.id = this.options.name || 'element'
+        canvasNew.className = "menus"
         document.querySelector('body').appendChild(canvasNew)
         this.ctx = canvasNew.getContext('2d')
     }
