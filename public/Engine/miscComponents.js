@@ -24,7 +24,7 @@ export default class BasicMovement extends Component {
         this.addListeners();
     }
 
-    update() {
+    update(_ctx, _parent, dt) {
         this.xspd2 = this.xspd;
         this.yspd2 = this.yspd;
 
@@ -32,6 +32,12 @@ export default class BasicMovement extends Component {
             this.xspd2 = this.xspd / RAIZ_DE_DOIS; // KKK
             this.yspd2 = this.yspd / RAIZ_DE_DOIS;
         }
+
+        this.xspd2 *= 100;
+        this.yspd2 *= 100;
+
+        this.xspd2 *= dt;
+        this.yspd2 *= dt;
         
         this.parent.x += this.xspd2;
         this.parent.y += this.yspd2;

@@ -9,6 +9,8 @@ export default class Game extends NonEntityGameObject {
     constructor() {
         super();
         this.xspd = 0;
+        this.dt = 0;
+        this.last = Date.now();
         this.yspd = 0;
         this.text = "";
         this.entities = [];
@@ -52,21 +54,25 @@ export default class Game extends NonEntityGameObject {
         if (this === undefined) {
             return undefined;
         }
+        let now = Date.now();
+        this.dt = (now - this.last) / 1000;
+        this.last = now;
         this.update_components();
         this.draw(this.ctx); // apaguei essa linha sem qrer fds
         if (this.scene !== "") {
             this.get_current_scene().update(this.ctx);
         }
         for (let ent of this.entities) {
-            ent.update(this);
+            ent.update(this, this.dt);
             ent.position_update();
-            ent.update_components(this.ctx);
+            ent.update_components(this.ctx, this.dt);
         }
 
         this.ctx.font = "15px monospace";
         this.ctx.fillStyle = "rgb(255,255,255)";
         this.ctx.fillText(this.text,10,100);
         
+        // tem q por o deltaTime aq
         window.requestAnimationFrame(this.gameLoop);
     }
 

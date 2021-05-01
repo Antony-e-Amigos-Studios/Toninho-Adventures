@@ -25,7 +25,7 @@ export default class Chat {
       this.buf = lines.join('\n');
     }
 
-    let validate = /^[^<]+$/g;
+    let validate = /^[^<]+$/;
 
     if (!validate.exec(message.msg)) {
       this.buf += `<h4 style="color:red">${message.sender} tentou haskiar o sistema</h4>\n`;
@@ -33,7 +33,7 @@ export default class Chat {
       return;
     }
 
-    this.buf += `<h4 style="color: ${message.color || '#eeeeee'}">${message.sender}: ${message.msg}</h4>`;
+    this.buf += `<h4 style="color: ${message.color || '#eeeeee'}">${message.sender}: ${message.msg}</h4>\n`;
 
     // for (let line of buf.split('\n')) {
     //   this.p.append(color);

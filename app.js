@@ -5,6 +5,21 @@ const { Server } = require('socket.io')
 const io = new Server(server)
 const PORT = 3000
 const readline = require('readline')
+
+const map = require('./Matrixs/mapMatrix.js')
+let tree = require('./Matrixs/treeMatrix.js')
+
+for (let i = 3; i < tree.length; i++) {
+  for (let j = 3; j < tree[0].length; j++) {
+    tree[i][j] = Math.floor(Math.random() * 6);
+    if (i < 5 || i > 18) {
+      tree[i][j] = Math.floor(Math.random() * 6) + 7;
+    } else if (j < 5 || j > 23) {
+      tree[i][j] = Math.floor(Math.random() * 6) + 7;
+    }
+  }
+}
+
 // const rl = readline.createInterface(process.stdin, process.stdout)
 
 app.use(express.static(__dirname + "/public/"))
@@ -14,11 +29,14 @@ server.listen(PORT, () => {
     console.log(`Servidor inciado em http://localhost:${PORT}`)
 })
 
+
 /////////////////////////////////////////////////////////////
 let players = {}
 
 io.on('connection', socket => {
     console.log('Cliente conectado!')
+
+    socket.emit('Matrixs', map, tree)
 
     socket.on('NewPlayer', data => {
         for (let key in players) {
@@ -44,7 +62,7 @@ io.on('connection', socket => {
     })
 
     socket.on('UpdatePlayer', (id, data) => {
-        players[id] = data
+        players[id] = data;
         players["online"] = Object.keys(players).length-1;
         io.emit('UpdatePlayers', players)
     })

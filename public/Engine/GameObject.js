@@ -12,9 +12,9 @@ class NonEntityGameObject {
         return this.components;
     }
 
-    update_components(ctx) {
+    update_components(ctx, dt) {
         for (let comp of Object.keys(this.components)) {
-            this.components[comp].update(ctx, this);
+            this.components[comp].update(ctx, this, dt);
         }
     }
 
